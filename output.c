@@ -61,3 +61,12 @@ int pop_index(struct pattern_chain* pc){
     free(cur);
     return index;
 }
+
+char* toString(struct pattern_chain* pc){
+    char* str;
+    index_chain* cur;
+    cur = pc->root;
+    while(cur->next != 0)
+        cur = cur->next;
+    return str;
+}

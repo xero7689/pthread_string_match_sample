@@ -11,10 +11,14 @@ typedef struct pattern_chain{
     struct index_chain* root;
 }patternChain;
 
+// String combination
+char* concat(char* str1, char* str2);
+
 struct pattern_chain* newPatternChain(char* pattern);
 int isEmpty(struct pattern_chain* pc);
 int pcLength(struct pattern_chain* pc);
 void add_index(struct pattern_chain* pc, int index);
 int pop_index(struct pattern_chain* pc);
+char* toString(struct pattern_chain* pc);
 
 #endif
