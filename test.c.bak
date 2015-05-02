@@ -1,0 +1,20 @@
+#include <stdio.h>
+#include "output.h"
+
+int main(){
+    patternChain* pc = newPatternChain("Pattern1");
+    
+    printf("Root:%s\t%d\n", pc->pattern, pc->root);
+    add_index(pc, 13);
+    add_index(pc, 100);
+    add_index(pc, 295);
+    add_index(pc, 1000);
+    add_index(pc, 85339722);
+
+    indexChain* travel = pc->root;
+    while(!isEmpty(pc)){
+        printf("Index: %d\n", pop_index(pc));
+    }
+
+    return 0;
+}

@@ -17,10 +17,6 @@
 char* create_buf(FILE*);
 int length(FILE*);
 
-void thread_match(){
-    
-}
-
 int main(int argc, char* argv[]){
     if(argc > 2){
         printf("Too many argumnet to supply.\n");
