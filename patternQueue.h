@@ -10,9 +10,9 @@ typedef struct queue_node{
 }Node;
 
 Node* patternQueue(const char* pattern_buf);
-//char* pq_pop(Node* pq);
+char* pq_pop(Node* pq);
 //int pq_push(Node* pq, const char* str);
-//int pq_isEmpty(const Node* pq);
+int pq_isEmpty(const Node* pq);
 int pq_length(const Node* pq);
 
 #endif

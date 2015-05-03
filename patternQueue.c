@@ -7,7 +7,7 @@ Node* patternQueue(const char* pattern_buf){
     Node* root = malloc(sizeof(Node));
     Node* current = root;
     Node* next;
-    unsigned long pattern_length = strlen(pattern_buf);
+    //unsigned long pattern_length = strlen(pattern_buf);
     //int pattern_index = 0;
     int start = 0;
     int end = 0;
@@ -40,30 +40,42 @@ Node* patternQueue(const char* pattern_buf){
         end = end + 2;
         start = end;
     }
-    current->str = "";
-    current->next = NULL;
-    return root;
+    current = 0;
+
+    // This is the real root of queue.
+    Node* head = malloc(sizeof(Node));
+    head->str="";
+    head->next = root;
+
+    return head;
 }
 
 int pq_length(const Node* pq){
     int length = 0;
-    const Node* tmp = pq;
-    while(tmp->next != NULL){
+    const Node* tmp = pq->next;
+    while(tmp->next != 0){
         tmp = tmp->next;
         length++;
     }
     return length++;
 }
 
-/*
+int pq_isEmpty(const Node* pq){
+    Node* tmp = pq->next->next;
+    //printf("%d\n", tmp);
+    if(tmp != 0)
+        return 0;
+    else
+        return 1;
+}
+
+
 char* pq_pop(Node* pq){
     Node* tmp;
     char* str;
-    tmp = pq;
-    printf("root:%x\n", pq);
-    pq = pq->next;
-    printf("root:%x\n", pq);
+    tmp = pq->next;
     str= tmp->str;
+    pq->next = tmp->next;
     free(tmp);
     return str;
 }
@@ -78,4 +90,3 @@ int pq_push(Node* pq, const char* str){
     tmp->next = newNode;
     return 1;
 }
-*/
