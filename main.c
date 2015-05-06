@@ -16,12 +16,14 @@
 
 char* create_buf(FILE*);
 int length(FILE*);
+void test_thread();
 
 struct thread_params{
     Node* pq;
     char* fb;
     FILE* op;
 };
+pthread_mutex_t pop_lock = PTHREAD_MUTEX_INITIALIZER;
 
 void thread_to_work(void*);
 
@@ -57,31 +59,30 @@ int main(int argc, char* argv[]){
     file_buf = create_buf(file_ptr);
     pattern_buf = create_buf(pattern_ptr);
 
-    // buf_length
-    //printf("file_buf length:%lu\n", strlen(file_buf));
-    //printf("pattern_buf length:%lu\n", strlen(pattern_buf));
-
     // Create PatternQueue
     Node* pq = patternQueue(pattern_buf);
-    /*
-    while(!pq_isEmpty(patterns)){
-        printf("pql:%d\n", pq_length(patterns));
-        pc = mpMatch(file_buf, pq_pop(patterns));
-    }
-    */
 
     struct thread_params tp;
     tp.pq = pq;
     tp.fb = file_buf;
     tp.op = output;
 
-
+    /*
     pthread_t threads[num_of_thread];
     for(int i = 0; i < num_of_thread; i++){
-        pthread_create(&threads[i], NULL, thread_to_work, &tp);
+        pthread_create(&threads[i], NULL, (void*)&test_thread, &tp);
         pthread_join(threads[i], NULL);
     }
-    //thread_to_work(&tp);
+    */
+    pthread_t t1;
+    pthread_t t2;
+    pthread_t t3;
+    pthread_create(&t1, NULL, (void*)&thread_to_work, &tp);
+    pthread_create(&t2, NULL, (void*)&thread_to_work, &tp);
+    pthread_create(&t3, NULL, (void*)&thread_to_work, &tp);
+    pthread_join(t1, NULL);
+    pthread_join(t2, NULL);
+    pthread_join(t3, NULL);
 
     // File Close
     fclose(file_ptr);
@@ -91,19 +92,30 @@ int main(int argc, char* argv[]){
     return 0;
 }
 
+void test_thread(){
+    pthread_t t = pthread_self();
+    printf("%u\n", (unsigned int) t);
+}
+
 void thread_to_work(void* par){
     struct thread_params* tp = par;
     struct pattern_chain* pc;
+    pthread_t t = pthread_self();
     while(!pq_isEmpty(tp->pq)){
-        pc = mpMatch(tp->fb, pq_pop(tp->pq));
-        printf("%s\n", pc->pattern);
+        pthread_mutex_lock(&pop_lock);
+        char* pattern = pq_pop(tp->pq);
+        pthread_mutex_unlock(&pop_lock);
+        pc = mpMatch(tp->fb, pattern); 
+#ifdef DEBUG
+        printf("Pattern:%s\tTid:%u\n", pc->pattern, (unsigned int)t);
+#endif
         fprintf(tp->op, "%s: (%d)", pc->pattern, pcLength(pc));
         while(!isEmpty(pc)){
             fprintf(tp->op, " %d", pop_index(pc));
         }
         fprintf(tp->op, "\n");
     }
-    printf("thread finish!\n");
+    printf("Tid:%u finish!\n", (unsigned int)t);
     pthread_exit(0);
 }
 

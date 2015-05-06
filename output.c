@@ -1,14 +1,11 @@
 #include "output.h"
-#include <stdio.h>
 #include <stdlib.h>
 
 int isEmpty(struct pattern_chain* pc){
     if(pc->root != 0){
-        //printf("%d", pc->root);
         return 0;
     }
     else{
-        //printf("%d", pc->root);
         return 1;
     }
 }
@@ -58,7 +55,7 @@ int pop_index(struct pattern_chain* pc){
     index = cur->index;
     next = cur->next;
     pc->root = next;
-    free(cur);
+    //free(cur);  // A double free bug
     return index;
 }
 
