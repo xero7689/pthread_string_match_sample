@@ -35,7 +35,7 @@ int main(int argc, char* argv[]){
 
     // Initialize Thread Pool
     int num_of_thread = strtol(argv[1], NULL, 10);
-    pthread_t thread_array[num_of_thread];
+    pthread_t threads[num_of_thread];
 
     FILE* file_ptr;
     FILE* pattern_ptr;
@@ -67,23 +67,15 @@ int main(int argc, char* argv[]){
     tp.fb = file_buf;
     tp.op = output;
 
-    /*
-    pthread_t threads[num_of_thread];
     for(int i = 0; i < num_of_thread; i++){
-        pthread_create(&threads[i], NULL, (void*)&test_thread, &tp);
+        pthread_create(&threads[i], NULL, (void*)&thread_to_work, &tp);
+        // There is a bug while put pthread_join() inside this loop.
+    }
+    
+    for(int i = 0; i < num_of_thread; i++){
         pthread_join(threads[i], NULL);
     }
-    */
-    pthread_t t1;
-    pthread_t t2;
-    pthread_t t3;
-    pthread_create(&t1, NULL, (void*)&thread_to_work, &tp);
-    pthread_create(&t2, NULL, (void*)&thread_to_work, &tp);
-    pthread_create(&t3, NULL, (void*)&thread_to_work, &tp);
-    pthread_join(t1, NULL);
-    pthread_join(t2, NULL);
-    pthread_join(t3, NULL);
-
+   
     // File Close
     fclose(file_ptr);
     fclose(pattern_ptr);
