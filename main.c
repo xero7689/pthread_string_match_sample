@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
+#include <time.h>
 
 #include "patternQueue.h"
 #include "strMatch.h"
@@ -16,7 +17,7 @@
 
 char* create_buf(FILE*);
 int length(FILE*);
-void test_thread();
+void test_thread();  // function for testing.
 
 struct thread_params{
     Node* pq;
@@ -24,8 +25,9 @@ struct thread_params{
     FILE* op;
 };
 pthread_mutex_t pop_lock = PTHREAD_MUTEX_INITIALIZER;
-
 void thread_to_work(void*);
+
+clock_t tstart, tfinish;
 
 int main(int argc, char* argv[]){
     if(argc > 2){
@@ -66,6 +68,8 @@ int main(int argc, char* argv[]){
     tp.pq = pq;
     tp.fb = file_buf;
     tp.op = output;
+    
+    tstart = clock();
 
     for(int i = 0; i < num_of_thread; i++){
         pthread_create(&threads[i], NULL, (void*)&thread_to_work, &tp);
@@ -80,6 +84,10 @@ int main(int argc, char* argv[]){
     fclose(file_ptr);
     fclose(pattern_ptr);
     fclose(output);
+    
+    tfinish = clock();
+    float time_spent = (float)(tstart - tfinish)/CLOCKS_PER_SEC ;
+    printf("Timing:%f\n", time_spent);
 
     return 0;
 }
