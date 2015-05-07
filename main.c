@@ -11,7 +11,7 @@
 
 #include "patternQueue.h"
 #include "strMatch.h"
-#include "output.h"
+#include "patternChain.h"
 
 #define DEBUG
 
@@ -28,7 +28,7 @@ patternChain* Pc;  // Array of out pattern_chain in patter.txt order
 
 void thread_to_work(void*);
 
-clock_t tstart, tfinish;
+clock_t start, finish;
 
 int main(int argc, char* argv[]){
     if(argc > 2){
@@ -72,8 +72,8 @@ int main(int argc, char* argv[]){
     struct thread_params tp;
     tp.pq = pq;
     tp.fb = file_buf;
-    tstart = clock();
-
+    
+    start = clock();
     for(int i = 0; i < num_of_thread; i++){
         pthread_create(&threads[i], NULL, (void*)&thread_to_work, &tp);
         // There is a bug while put pthread_join() inside this loop.
@@ -82,6 +82,7 @@ int main(int argc, char* argv[]){
     for(int i = 0; i < num_of_thread; i++){
         pthread_join(threads[i], NULL);
     }
+    finish = clock();
 
     // Output
     for(int i = 0; i < len_pq; i++){
@@ -96,9 +97,7 @@ int main(int argc, char* argv[]){
     fclose(pattern_ptr);
     fclose(output);
     
-    tfinish = clock();
-    float time_spent = (float)(tstart - tfinish)/CLOCKS_PER_SEC ;
-    printf("Timing:%f\n", time_spent);
+    printf("Timing:%lf sec\n", (finish-start)/(double)CLOCKS_PER_SEC);
 
     return 0;
 }

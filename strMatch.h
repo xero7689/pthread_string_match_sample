@@ -5,11 +5,8 @@
 
 #ifndef STRMATCH_H
 #define STRMATCH_H
-#include "output.h"
+#include "patternChain.h"
 
-//void failure(const char* pattern);
-//struct pattern_chain* mfMatch(char* text, char* pattern);
 struct pattern_chain* mpMatch(const char* text, const char* pattern);
-//void kmpMatch(const char* text, const char* pattern);
 
 #endif

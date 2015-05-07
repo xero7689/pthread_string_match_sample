@@ -1,5 +1,5 @@
-#ifndef OUTPUT_H
-#define OUTPUT_H
+#ifndef PATTERNCHAIN_H
+#define PATTERNCHAIN_H
 
 typedef struct index_chain{
     int index;

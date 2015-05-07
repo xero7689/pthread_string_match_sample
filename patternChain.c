@@ -1,4 +1,4 @@
-#include "output.h"
+#include "patternChain.h"
 #include <stdlib.h>
 
 int isEmpty(struct pattern_chain* pc){
