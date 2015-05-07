@@ -12,6 +12,7 @@ Node* patternQueue(const char* pattern_buf){
     int start = 0;
     int end = 0;
     int index = 0;
+    int nid = 0; // node id for output order.
     char* tmp_pattern;
 
     // Read Line
@@ -32,6 +33,7 @@ Node* patternQueue(const char* pattern_buf){
 #endif
         // Save to queue
         current->str = tmp_pattern;
+        current->id = nid++;
         next = malloc(sizeof(Node));
         current->next = next;
         current = next;
@@ -69,15 +71,11 @@ int pq_isEmpty(const Node* pq){
         return 1;
 }
 
-
-char* pq_pop(Node* pq){
+Node* pq_pop(Node* pq){
     Node* tmp;
-    char* str;
     tmp = pq->next;
-    str= tmp->str;
     pq->next = tmp->next;
-    free(tmp);
-    return str;
+    return tmp;
 }
 
 int pq_push(Node* pq, const char* str){

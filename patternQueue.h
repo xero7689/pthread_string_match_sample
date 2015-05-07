@@ -5,12 +5,13 @@
 #ifndef _PATTERNQUEUE
 #define _PATTERNQUEUE
 typedef struct queue_node{
-    char* str;
-    struct queue_node* next;
+    int id;  // node id for output order
+    const char* str;  // string of pattern
+    struct queue_node* next;  // link of next pattern
 }Node;
 
 Node* patternQueue(const char* pattern_buf);
-char* pq_pop(Node* pq);
+Node* pq_pop(Node* pq);
 //int pq_push(Node* pq, const char* str);
 int pq_isEmpty(const Node* pq);
 int pq_length(const Node* pq);

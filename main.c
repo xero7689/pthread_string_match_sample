@@ -20,11 +20,12 @@ int length(FILE*);
 void test_thread();  // function for testing.
 
 struct thread_params{
-    Node* pq;
-    char* fb;
-    FILE* op;
+    Node* pq;  // Global PatternQueue
+    char* fb;  // Buffer of test.txt
 };
 pthread_mutex_t pop_lock = PTHREAD_MUTEX_INITIALIZER;
+patternChain* Pc;  // Array of out pattern_chain in patter.txt order
+
 void thread_to_work(void*);
 
 clock_t tstart, tfinish;
@@ -63,12 +64,14 @@ int main(int argc, char* argv[]){
 
     // Create PatternQueue
     Node* pq = patternQueue(pattern_buf);
+    int len_pq = pq_length(pq);
+
+    // Initiallize of PatternChain
+    Pc = malloc(len_pq*sizeof(patternChain));
 
     struct thread_params tp;
     tp.pq = pq;
     tp.fb = file_buf;
-    tp.op = output;
-    
     tstart = clock();
 
     for(int i = 0; i < num_of_thread; i++){
@@ -78,6 +81,14 @@ int main(int argc, char* argv[]){
     
     for(int i = 0; i < num_of_thread; i++){
         pthread_join(threads[i], NULL);
+    }
+
+    // Output
+    for(int i = 0; i < len_pq; i++){
+        fprintf(output, "%s: (%d)", Pc[i].pattern, pcLength(&Pc[i]));
+        while(!isEmpty(&Pc[i]))
+            fprintf(output, " %d", pop_index(&Pc[i]));
+        fprintf(output, "\n");       
     }
    
     // File Close
@@ -92,28 +103,22 @@ int main(int argc, char* argv[]){
     return 0;
 }
 
-void test_thread(){
-    pthread_t t = pthread_self();
-    printf("%u\n", (unsigned int) t);
-}
-
 void thread_to_work(void* par){
     struct thread_params* tp = par;
     struct pattern_chain* pc;
     pthread_t t = pthread_self();
     while(!pq_isEmpty(tp->pq)){
+        // Pop a pattern and match
         pthread_mutex_lock(&pop_lock);
-        char* pattern = pq_pop(tp->pq);
+        Node* node = pq_pop(tp->pq);
         pthread_mutex_unlock(&pop_lock);
+        const char* pattern = node->str;
+        int id = node->id;        
         pc = mpMatch(tp->fb, pattern); 
-#ifdef DEBUG
-        printf("Pattern:%s\tTid:%u\n", pc->pattern, (unsigned int)t);
-#endif
-        fprintf(tp->op, "%s: (%d)", pc->pattern, pcLength(pc));
-        while(!isEmpty(pc)){
-            fprintf(tp->op, " %d", pop_index(pc));
-        }
-        fprintf(tp->op, "\n");
+        printf("Pattern:%s\tTid:%u\tNid:%d\n", pc->pattern, (unsigned int)t, id);
+
+        // Put each pattern chain into Pc
+        Pc[id] = *pc;
     }
     printf("Tid:%u finish!\n", (unsigned int)t);
     pthread_exit(0);
