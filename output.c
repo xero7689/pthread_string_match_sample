@@ -21,7 +21,7 @@ int pcLength(struct pattern_chain *pc){
     return total;
 }
 
-patternChain* newPatternChain(char* pattern){
+patternChain* newPatternChain(const char* pattern){
     patternChain* new = malloc(sizeof(patternChain));
     new->pattern = pattern;
     new->root = 0;

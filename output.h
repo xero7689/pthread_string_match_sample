@@ -14,7 +14,7 @@ typedef struct pattern_chain{
 // String combination
 char* concat(char* str1, char* str2);
 
-struct pattern_chain* newPatternChain(char* pattern);
+struct pattern_chain* newPatternChain(const char* pattern);
 int isEmpty(struct pattern_chain* pc);
 int pcLength(struct pattern_chain* pc);
 void add_index(struct pattern_chain* pc, int index);
