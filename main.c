@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
+//#include <omp.h>
 #include <time.h>
 #include <sys/time.h>
 
@@ -79,6 +80,7 @@ int main(int argc, char* argv[]){
     start_utime = tv.tv_sec * 1000000 + tv.tv_usec;
 
     // Create and join Thread
+    /*
     for(int i = 0; i < num_of_thread; i++){
         pthread_create(&threads[i], NULL, (void*)&thread_to_work, &tp);
         // There is a bug while put pthread_join() inside this loop.
@@ -86,6 +88,20 @@ int main(int argc, char* argv[]){
     
     for(int i = 0; i < num_of_thread; i++){
         pthread_join(threads[i], NULL);
+    }*/
+
+    // Openmp
+    struct pattern_chain* pc;
+    while(!pq_isEmpty(tp->pq)){
+        // Pop a pattern and match
+        Node* node = pq_pop(tp->pq);
+        const char* pattern = node->str;
+        int id = node->id;        
+        pc = mpMatch(tp->fb, pattern); 
+        printf("Pattern:%s\t\tNid:%d\n", pc->pattern, id);
+
+        // Put each pattern chain into Pc
+        Pc[id] = *pc;
     }
 
     // Timing - finish
