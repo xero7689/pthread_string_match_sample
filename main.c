@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
-//#include <omp.h>
+#include <omp.h>
 #include <time.h>
 #include <sys/time.h>
 
@@ -19,17 +19,8 @@
 
 char* create_buf(FILE*);
 int length(FILE*);
-void test_thread();  // function for testing.
 
-struct thread_params{
-    Node* pq;  // Global PatternQueue
-    char* fb;  // Buffer of test.txt
-};
-pthread_mutex_t pop_lock = PTHREAD_MUTEX_INITIALIZER;
 patternChain* Pc;  // Array of out pattern_chain in patter.txt order
-
-void thread_to_work(void*);
-
 double start_utime, finish_utime;
 struct timeval tv, tv2;
 
@@ -40,9 +31,6 @@ int main(int argc, char* argv[]){
     }
 
     // Initialize Thread Pool
-    int num_of_thread = strtol(argv[1], NULL, 10);
-    pthread_t threads[num_of_thread];
-
     FILE* file_ptr;
     FILE* pattern_ptr;
     FILE* output;
@@ -71,33 +59,20 @@ int main(int argc, char* argv[]){
 
     // Initiallize of PatternChain
     Pc = malloc(len_pq*sizeof(patternChain));
-    struct thread_params tp;
-    tp.pq = pq;
-    tp.fb = file_buf;
     
     // Timing
     gettimeofday(&tv, NULL);
     start_utime = tv.tv_sec * 1000000 + tv.tv_usec;
 
-    // Create and join Thread
-    /*
-    for(int i = 0; i < num_of_thread; i++){
-        pthread_create(&threads[i], NULL, (void*)&thread_to_work, &tp);
-        // There is a bug while put pthread_join() inside this loop.
-    }
-    
-    for(int i = 0; i < num_of_thread; i++){
-        pthread_join(threads[i], NULL);
-    }*/
-
     // Openmp
     struct pattern_chain* pc;
-    while(!pq_isEmpty(tp->pq)){
+#pragma omp parallel
+    while(!pq_isEmpty(pq)){
         // Pop a pattern and match
-        Node* node = pq_pop(tp->pq);
+        Node* node = pq_pop(pq);
         const char* pattern = node->str;
         int id = node->id;        
-        pc = mpMatch(tp->fb, pattern); 
+        pc = mpMatch(file_buf, pattern); 
         printf("Pattern:%s\t\tNid:%d\n", pc->pattern, id);
 
         // Put each pattern chain into Pc
@@ -107,7 +82,6 @@ int main(int argc, char* argv[]){
     // Timing - finish
     gettimeofday(&tv2, NULL);
     finish_utime = tv2.tv_sec * 1000000 + tv2.tv_usec;
-
     printf("Parallel Execution Time = %f(s)\n", (finish_utime - start_utime)/1000000);
 
     // Output
@@ -124,27 +98,6 @@ int main(int argc, char* argv[]){
     fclose(output);
     
     return 0;
-}
-
-void thread_to_work(void* par){
-    struct thread_params* tp = par;
-    struct pattern_chain* pc;
-    pthread_t t = pthread_self();
-    while(!pq_isEmpty(tp->pq)){
-        // Pop a pattern and match
-        pthread_mutex_lock(&pop_lock);
-        Node* node = pq_pop(tp->pq);
-        pthread_mutex_unlock(&pop_lock);
-        const char* pattern = node->str;
-        int id = node->id;        
-        pc = mpMatch(tp->fb, pattern); 
-        printf("Pattern:%s\tTid:%u\tNid:%d\n", pc->pattern, (unsigned int)t, id);
-
-        // Put each pattern chain into Pc
-        Pc[id] = *pc;
-    }
-    printf("Tid:%u finish!\n", (unsigned int)t);
-    pthread_exit(0);
 }
 
 int length(FILE* fp){
