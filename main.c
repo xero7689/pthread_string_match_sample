@@ -25,10 +25,8 @@ double start_utime, finish_utime;
 struct timeval tv, tv2;
 
 int main(int argc, char* argv[]){
-    if(argc > 2){
-        printf("Too many argumnet to supply.\n");
-        return 1;
-    }
+    int num_threads;
+    num_threads = strtol(argv[1], NULL, 10);
 
     // Initialize Thread Pool
     FILE* file_ptr;
@@ -67,24 +65,30 @@ int main(int argc, char* argv[]){
     // Openmp
     struct pattern_chain* pc;
     Node* node;
-    int id;
-#pragma omp parallel shared(pq) private(node, id, pc)
+    int nid;
+    const char* pattern;
+    int tid;
+#pragma omp parallel shared(pq) private(node, nid, pc, pattern) num_threads(num_threads)
     while(!pq_isEmpty(pq)){
         // Pop a pattern and match
         node = pq_pop(pq);
-        const char* pattern = node->str;
-        id = node->id;        
-        pc = mpMatch(file_buf, pattern); 
-        printf("Pattern:%s\t\tNid:%d\n", pc->pattern, id);
+        pattern = node->str;
+        nid = node->id;        
+        pc = mpMatch(file_buf, pattern);
+        
+        //Print
+        tid = omp_get_thread_num();
+        printf("TID:%d\tPattern:%s\tNid:%d\n", tid, pc->pattern, nid);
 
         // Put each pattern chain into Pc
-        Pc[id] = *pc;
+        Pc[nid] = *pc;
     }
 
     // Timing - finish
     gettimeofday(&tv2, NULL);
     finish_utime = tv2.tv_sec * 1000000 + tv2.tv_usec;
     printf("Parallel Execution Time = %f(s)\n", (finish_utime - start_utime)/1000000);
+    printf("Thread numbers:%d\n", num_threads);
 
     // Output
     for(int i = 0; i < len_pq; i++){
