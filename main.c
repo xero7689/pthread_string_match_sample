@@ -66,12 +66,14 @@ int main(int argc, char* argv[]){
 
     // Openmp
     struct pattern_chain* pc;
-#pragma omp parallel
+    Node* node;
+    int id;
+#pragma omp parallel shared(pq) private(node, id, pc)
     while(!pq_isEmpty(pq)){
         // Pop a pattern and match
-        Node* node = pq_pop(pq);
+        node = pq_pop(pq);
         const char* pattern = node->str;
-        int id = node->id;        
+        id = node->id;        
         pc = mpMatch(file_buf, pattern); 
         printf("Pattern:%s\t\tNid:%d\n", pc->pattern, id);
 
